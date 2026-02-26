@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Productos Financieros con IA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 2.2em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+        
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+        
+        .features {
+            text-align: left;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .features h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .features ul {
+            list-style: none;
+        }
+        
+        .features li {
+            margin-bottom: 12px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .features li span {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.2em;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            box-shadow: none;
+        }
+        
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            color: #999;
+            font-size: 0.9em;
+        }
+        
+        .loading {
+            display: none;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .badge {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 480px) {
+            .card {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .icon {
+                font-size: 4em;
+            }
+        }
+    </style>
+    <meta http-equiv="refresh" content="0; url=herramienta-analisis-ia.html">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="icon">🤖</div>
+            <span class="badge">v2.0</span>
+            <h1>Análisis de Productos Financieros con IA</h1>
+            <p class="description">Herramienta profesional para analizar acciones, fondos, ETFs y renta fija mediante inteligencia artificial</p>
+            
+            <div class="features">
+                <h3>✨ Características</h3>
+                <ul>
+                    <li><span>🔍</span> 11 tipos de análisis especializados</li>
+                    <li><span>🤖</span> Integración con DeepSeek, Gemini, ChatGPT y Claude</li>
+                    <li><span>📚</span> Sistema de respuestas guardadas (editar, borrar, buscar)</li>
+                    <li><span>📊</span> Análisis fundamental, valoración, deuda, múltiplos</li>
+                    <li><span>💾</span> Guarda tus análisis por ISIN</li>
+                </ul>
+            </div>
+            
+            <a href="herramienta-analisis-ia.html" class="btn">🚀 ACCEDER A LA APLICACIÓN</a>
+            <a href="https://github.com/tu-usuario/tu-repositorio" class="btn btn-secondary" target="_blank">📁 VER EN GITHUB</a>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px; color: #666;">Redirigiendo...</p>
+            </div>
+            
+            <div class="footer">
+                <p>© 2024 - Herramienta de Análisis Financiero con IA</p>
+                <p style="margin-top: 5px;">Introduce un ISIN y obtén análisis profesionales al instante</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Redirección automática suave (como fallback)
+        window.addEventListener('load', function() {
+            // Mostrar spinner después de 2 segundos si no ha redirigido
+            setTimeout(function() {
+                document.getElementById('loading').style.display = 'block';
+            }, 2000);
+        });
+        
+        // Opción: redirigir manualmente si el meta refresh falla
+        setTimeout(function() {
+            window.location.href = 'herramienta-analisis-ia.html';
+        }, 3000);
+    </script>
+</body>
+</html>
