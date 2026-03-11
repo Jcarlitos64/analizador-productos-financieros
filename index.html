@@ -157,7 +157,7 @@
     <!-- SECCIÓN: Cargar fichero previo -->
     <div class="seccion">
         <div class="seccion-titulo">📂 ¿Ya tienes análisis guardados?</div>
-        <p>Si tienes el archivo <strong>analisis-financieros-ia.json</strong> de una sesión anterior, cárgalo aquí para recuperar todos tus análisis. Si no tienes ninguno, puedes saltarte este paso.</p>
+        <p>Si tienes el archivo <strong>analisis_financiero_*.json</strong> de una sesión anterior, cárgalo aquí para recuperar todos tus análisis. El nombre incluye la fecha y hora del último guardado.</p>
         <div class="zona-drop" id="zonaDrop"
              onclick="document.getElementById('inputArchivo').click()"
              ondragover="event.preventDefault();this.style.background='#dbeafe'"
@@ -165,7 +165,7 @@
              ondrop="soltar(event)">
             <span class="drop-ico">📁</span>
             <p><strong>Haz clic</strong> o <strong>arrastra</strong> el archivo aquí</p>
-            <p style="font-size:11px;color:#aaa;margin-top:4px;">Solo archivos analisis-financieros-ia.json</p>
+            <p style="font-size:11px;color:#aaa;margin-top:4px;">Archivos <code>analisis_financiero_*.json</code></p>
         </div>
         <input type="file" id="inputArchivo" accept=".json" onchange="cargarArchivo(this)">
         <div id="infoCargado"></div>
@@ -201,17 +201,25 @@
 
 <script>
 const STORAGE_KEY = 'analisisFinancierosIA_v3';
+let _datosRecienCargados = [];
 
-// ─── Detectar datos en localStorage al cargar ─────────
+// ─── Nombre archivo con fecha/hora ─────────────────────
+function nombreArchivoAnalisis() {
+    const n = new Date();
+    const dd = String(n.getDate()).padStart(2,'0');
+    const mm = String(n.getMonth()+1).padStart(2,'0');
+    const yy = n.getFullYear();
+    const hh = String(n.getHours()).padStart(2,'0');
+    const mi = String(n.getMinutes()).padStart(2,'0');
+    return `analisis_financiero_${dd}${mm}${yy}_${hh}${mi}.json`;
+}
+
+// ─── PRIVACIDAD: limpiar localStorage al cargar la página ──
 window.addEventListener('DOMContentLoaded', () => {
-    try {
-        const datos = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (datos && datos.length > 0) {
-            document.getElementById('avisoGuardados').style.display = 'block';
-            document.getElementById('textoGuardados').textContent =
-                `Tienes ${datos.length} análisis guardados en este navegador. Puedes continuar donde lo dejaste.`;
-        }
-    } catch(e) {}
+    // Limpiar datos del usuario anterior
+    localStorage.removeItem(STORAGE_KEY);
+    // Pantalla siempre en blanco — el usuario carga su propio archivo
+    document.getElementById('avisoGuardados').style.display = 'none';
 });
 
 // ─── Toast ─────────────────────────────────────────────
@@ -239,32 +247,27 @@ function procesarArchivo(file) {
         try {
             const json = JSON.parse(e.target.result);
 
-            // Verificar que no es el archivo de la cartera
-            if (json.app === 'cartera-inversion' || json.cartera || (json.historico)) {
-                throw new Error('⚠️ Ese parece el archivo de la CARTERA DE INVERSIÓN, no de análisis.\n\nNecesitas el archivo llamado "analisis-financieros-ia.json".');
+            // Verificar que no es el archivo de la cartera de inversión
+            if (json.app === 'cartera-inversion' || json.cartera || json.historico) {
+                throw new Error('⚠️ Ese parece el archivo de GESTIÓN DE CARTERA, no de análisis financiero.\n\nNecesitas el archivo "analisis_financiero_*.json".');
             }
 
             const datos = json.datos || (Array.isArray(json) ? json : null);
-            if (!datos) throw new Error('Formato no reconocido. Asegúrate de cargar el archivo correcto: analisis-financieros-ia.json');
+            if (!datos) throw new Error('Formato no reconocido. Asegúrate de cargar un archivo de Análisis Financiero con IA.');
 
-            // Merge con lo que ya hay (por id, sin duplicar)
-            let actuales = [];
-            try { actuales = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(err) {}
-            const idsExistentes = new Set(actuales.map(a => a.id));
-            const nuevos = datos.filter(a => !idsExistentes.has(a.id));
-            const merged = [...actuales, ...nuevos];
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+            // Guardar en localStorage (sesión actual)
+            _datosRecienCargados = datos;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(datos));
 
             const elInfo = document.getElementById('infoCargado');
             elInfo.style.display = 'block';
-            elInfo.innerHTML = `✅ <strong>${nuevos.length} análisis cargados.</strong> Total disponible: ${merged.length} análisis. Ahora puedes entrar.`;
+            elInfo.innerHTML = `✅ <strong>${datos.length} análisis cargados</strong> del archivo <em>${file.name}</em>.<br>Pulsa «Entrar» para consultarlos.`;
 
-            // Actualizar aviso
             document.getElementById('avisoGuardados').style.display = 'block';
             document.getElementById('textoGuardados').textContent =
-                `Tienes ${merged.length} análisis guardados y listos para consultar.`;
+                `${datos.length} análisis listos para consultar. Pulsa «Entrar a la herramienta».`;
 
-            toast(`✅ ${nuevos.length} análisis recuperados`, 'ok', 3000);
+            toast(`✅ ${datos.length} análisis recuperados`, 'ok', 3000);
         } catch(err) {
             alert('❌ Error al cargar el archivo:\n\n' + err.message);
         }

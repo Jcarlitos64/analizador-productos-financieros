@@ -820,8 +820,19 @@ function cerrarModal() { document.getElementById('modalEdicion').classList.remov
 // ══════════════════════════════════════════════════════════
 //  GUARDAR / CARGAR ARCHIVO JSON
 // ══════════════════════════════════════════════════════════
+function generarNombreAnalisis() {
+    const n = new Date();
+    const dd = String(n.getDate()).padStart(2,'0');
+    const mm = String(n.getMonth()+1).padStart(2,'0');
+    const yy = n.getFullYear();
+    const hh = String(n.getHours()).padStart(2,'0');
+    const mi = String(n.getMinutes()).padStart(2,'0');
+    return `analisis_financiero_${dd}${mm}${yy}_${hh}${mi}.json`;
+}
+
 function guardarArchivo() {
     if (!analisis.length) { toast('No hay análisis que guardar todavía', 'info'); return; }
+    const nombre = generarNombreAnalisis();
     const blob = new Blob([JSON.stringify({
         app: 'analisis-financieros-ia',
         version: '3.0',
@@ -831,10 +842,10 @@ function guardarArchivo() {
     }, null, 2)], {type:'application/json'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `analisis-financieros-ia.json`;
+    a.download = nombre;
     a.click();
     URL.revokeObjectURL(a.href);
-    toast(`✅ Archivo guardado: analisis-financieros-ia.json (${analisis.length} análisis)`, 'ok', 3500);
+    toast(`✅ Guardado: ${nombre} (${analisis.length} análisis)`, 'ok', 3500);
 }
 
 function abrirModalCarga() { document.getElementById('modalCarga').classList.add('abierto'); }
@@ -922,12 +933,54 @@ function confirmarBorrarTodo() {
 function irAyuda() { window.open('ayuda-analisis-ia.html', '_blank'); }
 
 // ══════════════════════════════════════════════════════════
-//  AVISO AL SALIR
+//  AVISO AL SALIR — modal con nombre dinámico
 // ══════════════════════════════════════════════════════════
+let _analisisGuardadoConfirmado = false;
+
+function mostrarModalSalidaAnalisis(callback) {
+    if (document.getElementById('_modalSalidaA')) return;
+    const nombre = generarNombreAnalisis();
+    const overlay = document.createElement('div');
+    overlay.id = '_modalSalidaA';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    overlay.innerHTML = `
+        <div style="background:white;border-radius:18px;padding:32px 28px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);text-align:center;">
+            <div style="font-size:52px;margin-bottom:12px;">💾</div>
+            <h3 style="font-size:19px;color:#333;margin-bottom:10px;font-weight:800;">¿Guardar antes de salir?</h3>
+            <p style="font-size:14px;color:#666;line-height:1.65;margin-bottom:22px;">
+                Se descargará el archivo<br>
+                <strong style="color:#4361ee;font-size:13px;">${nombre}</strong><br>
+                con todos tus análisis guardados.
+            </p>
+            <div style="display:flex;gap:10px;margin-bottom:10px;">
+                <button id="_btnGSA" style="flex:1;padding:14px;background:linear-gradient(135deg,#4361ee,#7209b7);color:white;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;">💾 Guardar y salir</button>
+                <button id="_btnSSA" style="flex:1;padding:14px;background:#f0f0f0;color:#555;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;">Salir sin guardar</button>
+            </div>
+            <button id="_btnCSA" style="background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;padding:6px;">↩ Cancelar — quedarme aquí</button>
+        </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('_btnGSA').onclick = () => { guardarArchivo(); _analisisGuardadoConfirmado = true; document.body.removeChild(overlay); if(callback) callback(true); };
+    document.getElementById('_btnSSA').onclick = () => { _analisisGuardadoConfirmado = true; document.body.removeChild(overlay); if(callback) callback(true); };
+    document.getElementById('_btnCSA').onclick = () => { document.body.removeChild(overlay); if(callback) callback(false); };
+}
+
 window.addEventListener('beforeunload', e => {
-    if (analisis.length > 0) {
+    if (analisis.length > 0 && !_analisisGuardadoConfirmado) {
         e.preventDefault();
-        e.returnValue = '¿Has guardado el archivo de análisis? Si no lo has hecho, pulsa «Guardar análisis» antes de salir.';
+        e.returnValue = '¿Has guardado el archivo de análisis antes de salir?';
+    }
+});
+
+document.addEventListener('click', e => {
+    const link = e.target.closest('a[href]');
+    if (link) {
+        const href = link.getAttribute('href') || '';
+        if (href && href !== '#' && !href.startsWith('javascript') && !href.startsWith('mailto')) {
+            if (analisis.length > 0 && !_analisisGuardadoConfirmado) {
+                e.preventDefault();
+                mostrarModalSalidaAnalisis(ok => { if(ok) location.href = href; });
+            }
+        }
     }
 });
 
